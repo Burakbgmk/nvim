@@ -90,6 +90,13 @@ require('lazy').setup({
     filetypes = { 'html', 'css', 'templ' },
   },
 
+  -- MarkdownPreview
+  {
+    "iamcco/markdown-preview.nvim",
+    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+    ft = { "markdown" },
+    build = function() vim.fn["mkdp#util#install"]() end,
+  },
 
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
@@ -192,7 +199,57 @@ require('lazy').setup({
 
       -- Adds a number of user-friendly snippets
       'rafamadriz/friendly-snippets',
+
+      -- colorizer
+      {
+        'roobert/tailwindcss-colorizer-cmp.nvim',
+        config = true,
+      }
     },
+    -- opts = function(_, opts)
+    --   -- original LazyVim kind icon formatter
+    --   local format_kinds = opts.formatting.format
+    --   opts.formatting.format = function(entry, item)
+    --     format_kinds(entry, item) -- add icons
+    --     return require("tailwindcss-colorizer-cmp").formatter(entry, item)
+    --   end
+    -- end,
+    opts = function(_, opts)
+      opts.formatting = {
+        format = require('tailwindcss-colorizer-cmp').formatter,
+      }
+    end,
+  },
+
+  -- -- Tailwind Sorter
+  -- {
+  --   'laytan/tailwind-sorter.nvim',
+  --   dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-lua/plenary.nvim' },
+  --   build = 'cd formatter && npm i && npm run build',
+  --   config = true,
+  -- },
+
+  {
+    'NvChad/nvim-colorizer.lua',
+    opts = {
+      user_default_options = {
+        tailwind = true,
+      },
+    },
+  },
+
+
+  -- Vim Rest Console
+  {
+    'diepm/vim-rest-console',
+    config = function()
+      vim.g.vrc_set_default_mapping           = 0
+      vim.g.vrc_response_default_content_type = 'application/json'
+      vim.g.vrc_output_buffer_name            = '_OUTPUT.json'
+      vim.g.vrc_auto_format_response_patterns = {
+        json = 'jq',
+      }
+    end,
   },
 
   -- Useful plugin to show you pending keybinds.
@@ -236,100 +293,77 @@ require('lazy').setup({
       end,
     },
   },
-  {
-    -- Theme inspired by Atom
-    'rose-pine/neovim',
-    as = 'rose-pine',
-    config = function()
-      require('rose-pine').setup({
-        variant = 'auto',
-        --- @usage 'main'|'moon'|'dawn'
-        dark_variant = 'main',
-        bold_vert_split = false,
-        dim_nc_background = false,
-        disable_background = true,
-        disable_float_background = true,
-        disable_italics = false,
-
-        --- @usage string hex value or named color from rosepinetheme.com/palette
-        groups = {
-          background = 'none',
-          background_nc = 'none',
-          panel = 'surface',
-          panel_nc = 'base',
-          border = 'highlight_high',
-          comment = 'muted',
-          link = 'iris',
-          punctuation = 'subtle',
-
-          error = 'love',
-          hint = 'iris',
-          info = 'foam',
-          warn = 'gold',
-
-          headings = {
-            h1 = 'iris',
-            h2 = 'foam',
-            h3 = 'rose',
-            h4 = 'gold',
-            h5 = 'pine',
-            h6 = 'foam',
-          },
-
-          -- or set all headings at once
-          -- headings = 'subtle'
-        },
-        highlight_groups = {
-          ColorColumn = { bg = 'gold' },
-
-          -- Blend colours against the "base" background
-          CursorLine = { fg = 'foam', bg = 'foam', blend = 10 },
-          StatusLine = { fg = 'love', bg = 'love', blend = 10 },
-
-          -- By default each group adds to the existing config.
-          -- If you only want to set what is written in this config exactly,
-          -- you can set the inherit option:
-          Search = { bg = 'gold', inherit = false },
-        }
-      })
-      vim.cmd.colorscheme 'rose-pine'
-      -- vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-      -- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
-    end,
-  },
-
   -- {
-  --   'mvllow/modes.nvim',
-  --   tag = 'v0.2.0',
+  --   -- Theme inspired by Atom
+  --   'rose-pine/neovim',
+  --   as = 'rose-pine',
   --   config = function()
-  --     require('modes').setup(
-  --       {
-  --         colors = {
-  --           normal = "#f5c359",
-  --           copy = "#f5c359",
-  --           delete = "#c75c6a",
-  --           insert = "#78ccc5",
-  --           visual = "#9745be",
-  --         },
-  --
-  --         -- Set opacity for cursorline and number background
-  --         line_opacity = 0.55,
-  --
-  --         -- Enable cursor highlights
-  --         set_cursor = true,
-  --
-  --         -- Enable cursorline initially, and disable cursorline for inactive windows
-  --         -- or ignored filetypes
-  --         set_cursorline = false,
-  --
-  --         -- Disable modes highlights in specified filetypes
-  --         -- Please PR commonly ignored filetypes
-  --         ignore_filetypes = { 'NvimTree', 'TelescopePrompt' }
-  --       }
-  --     )
-  --   end
+  --     -- require('rose-pine').setup({
+  --     --   variant = 'auto',
+  --     --   --- @usage 'main'|'moon'|'dawn'
+  --     --   dark_variant = 'main',
+  --     --   bold_vert_split = false,
+  --     --   dim_nc_background = false,
+  --     --   disable_background = true,
+  --     --   disable_float_background = true,
+  --     --   disable_italics = false,
+  --     --
+  --     --   --- @usage string hex value or named color from rosepinetheme.com/palette
+  --     --   groups = {
+  --     --     background = 'none',
+  --     --     background_nc = 'none',
+  --     --     panel = 'surface',
+  --     --     panel_nc = 'base',
+  --     --     border = 'highlight_high',
+  --     --     comment = 'muted',
+  --     --     link = 'iris',
+  --     --     punctuation = 'subtle',
+  --     --
+  --     --     error = 'love',
+  --     --     hint = 'iris',
+  --     --     info = 'foam',
+  --     --     warn = 'gold',
+  --     --
+  --     --     headings = {
+  --     --       h1 = 'iris',
+  --     --       h2 = 'foam',
+  --     --       h3 = 'rose',
+  --     --       h4 = 'gold',
+  --     --       h5 = 'pine',
+  --     --       h6 = 'foam',
+  --     --     },
+  --     --
+  --     --     -- or set all headings at once
+  --     --     -- headings = 'subtle'
+  --     --   },
+  --     --   highlight_groups = {
+  --     --     -- ColorColumn = { bg = 'gold' },
+  --     --
+  --     --     -- Blend colours against the "base" background
+  --     --     -- CursorLine = { fg = 'foam', bg = 'foam', blend = 10 },
+  --     --     -- StatusLine = { fg = 'love', bg = 'love', blend = 10 },
+  --     --
+  --     --     -- By default each group adds to the existing config.
+  --     --     -- If you only want to set what is written in this config exactly,
+  --     --     -- you can set the inherit option:
+  --     --     -- Search = { bg = 'gold', inherit = false },
+  --     --   }
+  --     -- })
+  --     vim.cmd.colorscheme 'rose-pine'
+  --     vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+  --     vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+  --   end,
   -- },
-
+  {
+    "catppuccin/nvim",
+    name = 'catppuccin',
+    priority = 1000,
+    config = function()
+      vim.cmd.colorscheme 'catppuccin'
+      vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+      vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+    end
+  },
 
 
   {
@@ -339,7 +373,7 @@ require('lazy').setup({
     opts = {
       options = {
         icons_enabled = false,
-        theme = 'rose-pine',
+        theme = 'catppuccin',
         component_separators = '|',
         section_separators = '',
       },
@@ -464,6 +498,10 @@ vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
+
+-- Vim REST console
+vim.keymap.set("n", "<leader>xr", ":call VrcQuery()<CR>") -- Run Rest Query
+
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
@@ -478,6 +516,13 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
 
 vim.keymap.set("x", "<leader>p", [["_dP]])
+
+-- Tmux search projects
+vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww /Users/burakbogmak/scripts/tmux-sessionizer<CR>")
+
+-- Make executable
+vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
+vim.keymap.set("n", "<leader>X", "<cmd>!chmod -x %<CR>", { silent = true })
 
 local harpoon = require("harpoon")
 
@@ -540,7 +585,10 @@ require('telescope').setup {
             vim.cmd(string.format("silent cd %s", dir))
           end
         }
-      }
+      },
+      file_ignore_patterns = {
+        "node_modules"
+      },
     },
   },
 }
@@ -597,7 +645,6 @@ end, { desc = '[/] Fuzzily search in current buffer' })
 
 vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
 vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
--- vim.keymap.set('n', '<leader>sc', require('telescope.builtin').find_files.mappings.n.cd('~/Desktop/Coding'), { desc = '[S]earch [C]oding' })
 vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
 vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
@@ -605,7 +652,7 @@ vim.keymap.set('n', '<leader>sG', ':LiveGrepGitRoot<cr>', { desc = '[S]earch by 
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
 vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
 
-vim.keymap.set("n", "<C-_>", function() require('Comment.api').toggle.linewise.current() end,
+vim.keymap.set("n", "<C-/>", function() require('Comment.api').toggle.linewise.current() end,
   { noremap = true, silent = true })
 vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
 
